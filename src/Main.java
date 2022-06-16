@@ -40,12 +40,12 @@ public final class Main
     private static final int VENDOR_SAITEK = 0x6a3;
     private static final int DEVICE_SWITCH = 0xd67;
     private static final int DEVICE_RADIO = 0xd05;
-    private static final int DEVICE_AUTOPILOTS = 0x0000;
+    private static final int DEVICE_AUTOPILOTS = 0xd06;
     private static final int READ_INTERRUPT = 0x81;
     private static final boolean DEBUG_FLAGS = false;
     private static final boolean DEBUG_SWITCHES = true;
-    private static final boolean DEBUG_RADIO = false;
-    private static final boolean DEBUG_AUTOPILOTS = false;
+    private static final boolean DEBUG_RADIO = true;
+    private static final boolean DEBUG_AUTOPILOTS = true;
 
     private static final boolean DEBUG_SWITCHES_DISABLE_SHORTCUTS = false;
     private static final boolean DEBUG_RADIO_DISABLE_SHORTCUTS = true;
@@ -94,9 +94,9 @@ public final class Main
         System.out.println("Shortcuts read (" + SHORTCUTS.size() + ").");
         System.out.println();
 
-        SWITCH_READER.start();
+//        SWITCH_READER.start();
 //        RADIO_READER.start();
-//        AUTOPILOTS_READER.start();
+        AUTOPILOTS_READER.start();
     }
 
     static String toBIN(final byte[] b)
@@ -507,8 +507,29 @@ public final class Main
 
     enum AutopilotKeys
     {
-        // Group 0 (example)
-        EXAMPLE(0, 0b1000, "AUTOPILOT_EXAMPLE");
+        ROTARY_ALT(0, 1<<0, "ROTARY_ALT"),
+        ROTARY_VS(0, 1<<1, "ROTARY_VS"),
+        ROTARY_IAS(0, 1<<2, "ROTARY_IAS"),
+        ROTARY_HDG(0, 1<<3, "ROTARY_HDG"),
+        ROTARY_CRS(0, 1<<4, "ROTARY_CRS"),
+        KNOB_RIGHT(0, 1<<5, "ROTARY_RIGHT"),
+        KNOB_LEFT(0, 1<<6, "ROTARY_LEFT"),
+        BUTTON_AP(0, 1<<7, "BUTTON_AP"),
+
+        BUTTON_HDG(1, 1<<0, "BUTTON_HDG"),
+        BUTTON_NAV(1, 1<<1, "BUTTON_NAV"),
+        BUTTON_IAS(1, 1<<2, "BUTTON_IAS"),
+        BUTTON_ALT(1, 1<<3, "BUTTON_ALT"),
+        BUTTON_VS(1, 1<<4, "BUTTON_VS"),
+        BUTTON_APR(1, 1<<5, "BUTTON_APR"),
+        BUTTON_REV(1, 1<<6, "BUTTON_REV"),
+        AUTO_THROTTLE(1, 1<<7, "AUTO_THROTTLE"),
+        
+        FLAPS_UP(2, 1<<0, "FLAPS_UP"),
+        FLAPS_DOWN(2, 1<<1, "FLAPS_DOWN"),
+        PITCH_TRIM_UP(2, 1<<2, "PITCH_TRIM_UP"),
+        PITCH_TRIM_DOWN(2, 1<<3, "PITCH_TRIM_DOWN");
+
 
         private final int group;
         private final int mask;
@@ -558,13 +579,12 @@ public final class Main
         }
     }
 
-    private static final byte[] AUTOPILOTS_INITIAL_BYTES = new byte[] {0b00000000, 0b00100000, 0b00001000, 0b00000000};
-
+    private static final byte[] AUTOPILOTS_INITIAL_BYTES = new byte[] {0b00000001, 0b00000000, 0b00000000, (byte) 0b11001111};
     private static final Thread AUTOPILOTS_READER = new Thread(() ->
     {
         try
         {
-            System.out.println("starting autopilots panel reader");
+            System.out.println("starting autopilots panel reader---------------------------------------------------------------");
             boolean firstRun = true;
             Device dev = USB.getDevice((short) VENDOR_SAITEK, (short) DEVICE_AUTOPILOTS);
             try
